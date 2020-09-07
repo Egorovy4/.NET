@@ -1,0 +1,23 @@
+﻿@model WebAppChat.Models.LoginModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<h2>Login Page</h2>
+
+<form asp-action="Login" asp-controller="Account" asp-anti-forgery="true">
+    <div class="validation" asp-validation-summary="ModelOnly"></div>
+    <div>
+        <div class="form-group">
+            <label asp-for="Email">Enter Email</label><br />
+            <input type="text" asp-for="Email" />
+            <span asp-validation-for="Email" /><br />
+        </div>
+        <div class="form-group">
+            <label asp-for="Password">Enter Password</label><br />
+            <input asp-for="Password" />
+            <span asp-validation-for="Password" /><br />
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Login" class="btn" />
+        </div>
+    </div>
+</form>

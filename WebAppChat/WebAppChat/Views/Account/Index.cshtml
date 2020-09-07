@@ -1,0 +1,83 @@
+﻿@if (User.Identity.IsAuthenticated)
+{
+    <a href="~/Account/Logout">Logout</a>
+}
+else
+{
+    <a href="~/Account/Login">Login</a>
+}
+
+<div id="userNameBlock">
+    Enter nickname:<br />
+    <input id="userName" type="text" />
+    <input id="loginBtn" type="button" value="Use" />
+</div>
+<br />
+
+<div id="header"></div>
+<br />
+
+<div id="inputForm">
+    <input type="text" id="message" />
+    <input type="button" id="sendBtn" value="Send" />
+</div>
+
+@if (User.IsInRole("admin"))
+{
+    <br /><div id="notifyForm">
+        <input type="text" id="notify" />
+        <input type="button" id="notifyBtn" value="Message from Administrator" />
+    </div>
+}
+
+<div id="chatroom"></div>
+
+<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+
+<script>
+    const hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/chat")
+        .build();
+
+    let userName = "";
+
+    // отримання повідомлень від сервера
+    hubConnection.on("Receive", function (message, userName) {
+        // створення елементу <b> для імені користувача
+        let userNameElem = document.createElement("b");
+        userNameElem.appendChild(document.createTextNode(userName + ": "));
+
+        // створення елементу <p> для повідомлення користувача
+        let elem = document.createElement("p");
+        elem.appendChild(userNameElem);
+        elem.appendChild(document.createTextNode(message));
+
+        var firstElem = document.getElementById("chatroom").firstChild;
+        document.getElementById("chatroom").insertBefore(elem, firstElem);
+    });
+
+    // встановлення імені користувача
+    document.getElementById("loginBtn").addEventListener("click", function (e) {
+        userName = document.getElementById("userName").value;
+        document.getElementById("header").innerHTML = "<h3>Welcome " + userName + "</h3>";
+    });
+
+    // надсилання повідомлення від простого користувача
+    document.getElementById("sendBtn").addEventListener("click", function (e) {
+        let message = document.getElementById("message").value;
+        hubConnection.invoke("Send", message, userName);
+    });
+
+    // якщо роль - адміністратор, то добавляється блок
+    @if (User.IsInRole("admin"))
+    {
+        // отправка сообщения от администратора
+        <text>
+        document.getElementById("notifyBtn").addEventListener("click", function(e) {
+            let message = document.getElementById("notify").value;
+            hubConnection.invoke("Notify", message, userName);
+        });
+        </text>
+    }
+    hubConnection.start();
+</script>
